@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odysi Studio - Investor Readiness Scorecard</title>
+    <style>
+        :root {
+            --ody-bg-primary: #FFFFFF;
+            --ody-bg-secondary: #F8F9FA; /* Very light grey for subtle contrast */
+            --ody-text-primary: #212529; /* Dark grey, almost black */
+            --ody-text-secondary: #495057; /* Medium grey */
+            --ody-accent: #20C997; /* Teal/Cyan - chosen from typical modern palettes, similar to site's hover */
+            --ody-accent-hover: #1BAA83; /* Darker shade for hover on accent */
+            --ody-border-color: #DEE2E6; /* Light grey for borders */
+            --ody-border-dark: #343A40; /* Darker border for outlined buttons */
+            --ody-font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
+        body {
+            font-family: var(--ody-font-stack);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0; 
+            background-color: #E9EDF0; /* Outer page background */
+            color: var(--ody-text-primary);
+            min-height: 100vh;
+            font-size: 16px; /* Base font size */
+        }
+
+        #app-wrapper {
+            display: flex;
+            max-width: 1200px; 
+            margin: 20px auto;
+            background-color: var(--ody-bg-primary);
+            border-radius: 8px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+            min-height: calc(100vh - 40px); 
+            overflow: hidden; 
+        }
+
+        #main-content-area {
+            flex: 3; 
+            padding: 40px; /* Increased padding */
+            overflow-y: auto; 
+        }
+
+        #sidebar-area {
+            flex: 1; 
+            background-color: var(--ody-bg-secondary); 
+            padding: 40px; /* Increased padding */
+            border-left: 1px solid var(--ody-border-color); 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h1, h2, h3 {
+            color: var(--ody-text-primary);
+            margin-bottom: 0.75em;
+            font-weight: 600; /* Bolder headings */
+        }
+        #main-content-area > section > h1 { /* Titles for intro, questionnaire, results */
+            font-size: 2em; 
+            margin-bottom: 1.2em; 
+            border-bottom: 1px solid var(--ody-border-color);
+            padding-bottom: 0.5em;
+        }
+        #main-content-area h2 { font-size: 1.5em; margin-top: 1.8em; }
+        #main-content-area h3 { font-size: 1.25em; }
+
+        #sidebar-area .odysi-brand {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--ody-text-primary);
+            margin-bottom: 0.1em;
+         }
+         #sidebar-area .tagline {
+            font-size: 0.9em;
+            color: var(--ody-text-secondary);
+            margin-bottom: 30px;
+         }
+        #sidebar-area h2 { /* "Investor Readiness" */
+            font-size: 1.2em; /* Slightly smaller */
+            color: var(--ody-text-primary);
+            font-weight: 600;
+            margin-top: 0;
+            border-bottom: 2px solid var(--ody-accent); /* Accent underline */
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        p { margin-bottom: 1.2em; color: var(--ody-text-secondary); font-size: 0.95em;}
+        #main-content-area p { font-size: 1em; }
+
+
+        button {
+            font-family: var(--ody-font-stack);
+            padding: 10px 24px; /* Adjusted padding */
+            font-size: 0.95em;
+            font-weight: 500; /* Medium weight */
+            border-radius: 6px; /* Slightly more rounded */
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid transparent;
+            margin-top: 10px;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Primary Button Style (like Odysi's "Book a Call") */
+        button.primary, #next-question-btn, #book-session-btn {
+            background-color: var(--ody-bg-primary);
+            color: var(--ody-text-primary);
+            border: 1px solid var(--ody-border-dark);
+        }
+        button.primary:hover, #next-question-btn:hover, #book-session-btn:hover {
+            background-color: var(--ody-accent);
+            color: var(--ody-bg-primary);
+            border-color: var(--ody-accent);
+        }
+
+        /* Secondary Button Style */
+        button.secondary, #prev-question-btn, #restart-btn, #download-report-btn {
+            background-color: var(--ody-bg-secondary);
+            color: var(--ody-text-secondary);
+            border: 1px solid var(--ody-border-color);
+        }
+        button.secondary:hover, #prev-question-btn:hover, #restart-btn:hover, #download-report-btn:hover {
+            background-color: var(--ody-text-primary); /* Darken on hover */
+            color: var(--ody-bg-primary);
+            border-color: var(--ody-text-primary);
+        }
+        
+        .question { margin-bottom: 20px; } /* Increased spacing */
+        .question label { display: block; margin-bottom: 10px; font-weight: 500; color: var(--ody-text-primary); font-size: 1.05em;}
+        .question select, .question input[type="text"], .question input[type="number"] {
+            width: 100%; padding: 12px; border: 1px solid var(--ody-border-color); border-radius: 6px; 
+            box-sizing: border-box; font-size: 1em; background-color: var(--ody-bg-primary); color: var(--ody-text-primary);
+        }
+        .question select:focus, .question input[type="text"]:focus, .question input[type="number"]:focus {
+            border-color: var(--ody-accent);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(32, 201, 151, 0.2);
+        }
+
+        .question .options label { font-weight: normal; margin-right: 20px; display: inline-flex; align-items: center; font-size: 0.95em; color: var(--ody-text-secondary); }
+        .question .options input[type="radio"] { 
+            margin-right: 8px; 
+            accent-color: var(--ody-accent); /* Styles the radio button itself in modern browsers */
+            width: 1.1em; height: 1.1em;
+        }
+
+        #results-screen .score-display {
+            text-align: center; font-size: 2.2em; font-weight: 600; color: var(--ody-accent); margin: 25px 0;
+            padding: 20px; background-color: var(--ody-bg-secondary); border-radius: 8px;
+        }
+        #results-screen .category-score {
+            display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--ody-border-color);
+            font-size: 0.95em;
+        }
+        #results-screen .category-score:last-child { border-bottom: none; }
+        #results-screen .category-score span:first-child { font-weight: 500; color: var(--ody-text-primary); }
+        #results-screen .category-score span:last-child { color: var(--ody-text-secondary); }
+
+        #results-screen .action-list { margin-top: 25px; padding-left: 0; list-style-type: none; }
+        #results-screen .action-list li { 
+            margin-bottom: 10px; padding-left: 25px; position: relative; color: var(--ody-text-secondary);
+        }
+        #results-screen .action-list li::before {
+            content: '✓'; /* Checkmark or other icon */
+            color: var(--ody-accent);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 1px;
+        }
+
+        #results-screen .cta-buttons { margin-top: 35px; text-align: center; }
+        #results-screen .cta-buttons button { margin: 5px 10px; } /* Adjusted margins for better stacking on mobile */
+        
+        #sidebar-progress-container { width: 100%; margin-bottom: 20px; }
+        #sidebar-progress-container .progress-bar-title { font-size: 0.9em; color: var(--ody-text-secondary); margin-bottom: 8px;}
+        .progress-bar-wrapper { width: 100%; background-color: #E9ECEF; border-radius: 6px; height: 10px; overflow: hidden;}
+        .progress-bar { 
+            width: 0%; height: 100%; background-color: var(--ody-accent); border-radius: 6px;
+            transition: width 0.4s ease-in-out;
+        }
+        #current-category-title-main { /* Category title in main form area */
+            font-size: 1.75em; 
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: var(--ody-text-primary);
+            /* border-bottom: 1px solid var(--ody-border-color); */ /* Removed this, section H1 has it */
+            padding-bottom: 0px; /* Adjusted */
+        }
+
+        #radar-chart-container { display: flex; justify-content: center; align-items: center; margin: 30px 0; min-height: 280px; }
+        #radar-chart { max-width: 100%; height: auto; }
+        .radar-polygon { fill: rgba(32, 201, 151, 0.4); stroke: var(--ody-accent); stroke-width: 2; } /* Accent with transparency */
+        .radar-axis, .radar-level { stroke: var(--ody-border-color); stroke-width: 1; }
+        .radar-label { font-size: 11px; fill: var(--ody-text-secondary); text-anchor: middle; font-weight: 500;}
+
+        #sidebar-area .footer-text {
+            margin-top: auto; padding-top:20px; font-size:0.85em; color: #6C757D; /* Muted grey */ text-align: left;
+        }
+
+        @media (max-width: 900px) { /* Adjusted breakpoint */
+            #app-wrapper {
+                flex-direction: column;
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            #main-content-area {
+                order: 2; 
+                padding: 25px;
+            }
+            #sidebar-area {
+                order: 1; 
+                border-left: none;
+                border-bottom: 1px solid var(--ody-border-color);
+                padding: 25px;
+                flex: none; 
+            }
+            #sidebar-area h2 { font-size: 1.1em; }
+            #results-screen .cta-buttons button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+             #main-content-area > section > h1 { font-size: 1.7em; }
+             #current-category-title-main { font-size: 1.5em; }
+        }
+         @media (max-width: 500px) {
+            #main-content-area > section > h1 { font-size: 1.5em; }
+            #results-screen .score-display { font-size: 1.8em; }
+            .question label { font-size: 1em; }
+            button { padding: 10px 18px; font-size: 0.9em;}
+         }
+
+    </style>
+</head>
+<body>
+    <div id="app-wrapper">
+        <aside id="sidebar-area">
+            <div class="sidebar-sticky-content">
+                <div class="odysi-brand">Odysi Studio</div>
+                <div class="tagline">Growth with Clarity & Precision</div>
+                
+                <h2>Investor Readiness</h2>
+                
+                <div id="sidebar-progress-container" style="display:none;"> 
+                    <div class="progress-bar-title">Assessment Progress:</div>
+                    <div class="progress-bar-wrapper">
+                        <div id="sidebar-progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+                <div id="sidebar-summary" style="display:none; margin-top:20px;">
+                    <h4>Quick Summary:</h4>
+                    <p id="sidebar-overall-score-text" style="font-weight: 500; color: var(--ody-text-primary);"></p>
+                </div>
+                
+                <div class="footer-text">
+                    <p>&copy; <span id="current-year"></span> Odysi Studio.<br>For diagnostic purposes only.</p>
+                </div>
+            </div>
+        </aside>
+
+        <main id="main-content-area">
+            <section id="intro-screen">
+                <h1>Assess Your Investor Readiness</h1>
+                <p>Raising soon? This diagnostic tool (approx. 5-7 mins) will help you pinpoint strengths and weaknesses across key areas investors scrutinize.</p>
+                <p>Your answers are confidential and used only to generate your personalized score and action plan.</p>
+                <button id="start-assessment-btn" class="primary">Start Assessment</button>
+            </section>
+
+            <section id="questionnaire-screen" style="display:none;">
+                <h1 id="current-category-title-main">Category Title</h1> 
+                <form id="readiness-form">
+                    <!-- Questions will be populated here by JS -->
+                </form>
+                <div id="question-navigation-btns" style="margin-top:30px; display:flex; justify-content: space-between; align-items: center;">
+                     <button type="button" id="prev-question-btn" class="secondary" style="display:none;">Previous</button>
+                     <button type="button" id="next-question-btn" class="primary">Next</button>
+                </div>
+            </section>
+
+            <section id="results-screen" style="display:none;">
+                <h1>Your Investor Readiness Results</h1>
+                <div class="score-display" id="overall-score">Calculating...</div>
+                
+                <div id="radar-chart-container">
+                    <svg id="radar-chart" width="320" height="320" viewBox="0 0 320 320"></svg> <!-- Slightly larger radar -->
+                </div>
+
+                <h3>Category Breakdown:</h3>
+                <div id="category-scores"></div>
+
+                <h3>Key Gaps & Actionable Next Steps:</h3>
+                <ul id="action-list" class="action-list"></ul>
+
+                <div class="cta-buttons">
+                    <p style="font-size: 1.05em; color: var(--ody-text-primary); margin-bottom: 15px;">Ready to turn insights into action?</p>
+                    <button id="book-session-btn" class="primary">Book a Free Feedback Session</button>
+                    <button id="download-report-btn" class="secondary">Copy Summary</button>
+                    <button id="restart-btn" class="secondary">Restart Assessment</button>
+                </div>
+                <textarea id="report-textarea" style="opacity:0; position:absolute; left: -9999px; width:1px; height:1px;"></textarea>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const questions = [
+            { 
+                id: "q1", category: "Traction & Metrics", text: "Do you track MRR, growth rate, and churn monthly?", 
+                type: "yesNoSomewhat", weight: 2,
+                advice: { no: "Start tracking core SaaS metrics (MRR, Growth, Churn) diligently. Investors will demand this.", somewhat: "Solidify your metrics tracking. Ensure data is accurate and easily reportable."}
+            },
+            { 
+                id: "q2", category: "Traction & Metrics", text: "Can you confidently state your Customer Acquisition Cost (CAC) and payback period?", 
+                type: "yesNoSomewhat", weight: 2,
+                advice: { no: "Calculate your CAC and payback period. These are critical for understanding unit economics.", somewhat: "Refine your CAC and payback period calculations. Be ready to defend them."}
+            },
+            {
+                id: "q2b", category: "Traction & Metrics", text: "What is your current Monthly Recurring Revenue (MRR)? (Enter 0 if N/A or pre-revenue)",
+                type: "number", optional: true 
+            },
+            { 
+                id: "q3", category: "Go-to-Market Clarity", text: "Do you have a clearly defined Ideal Customer Profile (ICP)?", 
+                type: "yesNoSomewhat", weight: 1.5,
+                advice: { no: "Develop a detailed ICP. Knowing exactly who you're selling to is fundamental.", somewhat: "Sharpen your ICP definition. Is it backed by data and specific enough?"}
+            },
+            { 
+                id: "q4", category: "Go-to-Market Clarity", text: "Have you identified and validated repeatable customer acquisition channels with a predictable CAC?", 
+                type: "yesNoSomewhat", weight: 2,
+                advice: { no: "Focus on finding and validating 1-2 scalable acquisition channels. Experimentation is key here.", somewhat: "Systematize your acquisition channels. Ensure they are truly repeatable and aim to optimize CAC."}
+            },
+            { 
+                id: "q5", category: "Narrative & Pitch", text: "Do you have a compelling 10–12 slide pitch deck tailored to investor expectations?", 
+                type: "yesNoSomewhat", weight: 2,
+                advice: { no: "Create a concise and compelling investor deck. Focus on story, traction, team, and market.", somewhat: "Review and refine your pitch deck. Ensure it clearly articulates your value proposition and growth plan."}
+            },
+            { 
+                id: "q6", category: "Narrative & Pitch", text: "Have you pressure-tested your story and pitch with experienced advisors or mock investors?", 
+                type: "yesNoSomewhat", weight: 1.5,
+                advice: { no: "Seek feedback on your pitch from mentors, advisors, or friendly investors. Practice makes perfect.", somewhat: "Continue to get feedback on your pitch. Every conversation is a learning opportunity."}
+            },
+            { 
+                id: "q7", category: "Team & Hiring Plan", text: "Do you have a strong leadership team (or clear plan for key hires) in place for your next stage of growth?", 
+                type: "yesNoSomewhat", weight: 1.5,
+                advice: { no: "Identify key leadership gaps and develop a plan to fill them. Investors bet on teams.", somewhat: "Ensure your hiring plan is realistic and aligned with your growth milestones and use of funds."}
+            },
+            { 
+                id: "q8", category: "Team & Hiring Plan", text: "Is there a clear 'use of funds' plan tied to specific growth milestones and potential headcount additions?", 
+                type: "yesNoSomewhat", weight: 1.5,
+                advice: { no: "Develop a detailed use of funds plan. Show investors how their capital will fuel growth.", somewhat: "Refine your use of funds. Make sure it's specific, measurable, and defensible."}
+            },
+            { 
+                id: "q9", category: "Data Room & Ops", text: "Do you have clean, up-to-date monthly financials (P&L, Balance Sheet, Cash Flow) and robust financial projections?", 
+                type: "yesNoSomewhat", weight: 2,
+                advice: { no: "Organize your financials immediately. Accurate historicals and realistic projections are non-negotiable.", somewhat: "Ensure your financial model is robust and your data room is well-organized."}
+            },
+            { 
+                id: "q10", category: "Data Room & Ops", text: "Is your cap table accurate, up-to-date, and easily accessible (e.g., on a platform like Carta or Pulley)?", 
+                type: "yesNoSomewhat", weight: 1,
+                advice: { no: "Clean up your cap table. Errors here can be costly and delay deals.", somewhat: "Double-check your cap table for accuracy. Consider using a cap table management platform."}
+            }
+        ];
+
+        const categories = [...new Set(questions.filter(q => q.type !== 'number').map(q => q.category))];
+        const answers = {};
+        let currentQuestionIndex = 0;
+
+        const introScreen = document.getElementById('intro-screen');
+        const questionnaireScreen = document.getElementById('questionnaire-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const form = document.getElementById('readiness-form');
+        const nextBtn = document.getElementById('next-question-btn');
+        const prevBtn = document.getElementById('prev-question-btn');
+        
+        const sidebarProgressContainer = document.getElementById('sidebar-progress-container');
+        const sidebarProgressBar = document.getElementById('sidebar-progress-bar');
+        const currentCategoryTitleMainEl = document.getElementById('current-category-title-main');
+        const sidebarSummaryEl = document.getElementById('sidebar-summary');
+        const sidebarOverallScoreTextEl = document.getElementById('sidebar-overall-score-text');
+
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        function showScreen(screenElement) {
+            introScreen.style.display = 'none';
+            questionnaireScreen.style.display = 'none';
+            resultsScreen.style.display = 'none';
+            
+            sidebarProgressContainer.style.display = 'none'; 
+            sidebarSummaryEl.style.display = 'none'; 
+
+            screenElement.style.display = 'block';
+
+            if (screenElement === questionnaireScreen) {
+                sidebarProgressContainer.style.display = 'block';
+            } else if (screenElement === resultsScreen) {
+                sidebarSummaryEl.style.display = 'block'; 
+            }
+        }
+
+        function renderQuestion(index) {
+            form.innerHTML = ''; 
+            if (index >= questions.length) {
+                calculateResults();
+                return;
+            }
+
+            const q = questions[index];
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question');
+            questionDiv.innerHTML = `<label for="${q.id}">${currentQuestionIndex + 1}. ${q.text}</label>`;
+            
+            currentCategoryTitleMainEl.textContent = q.category;
+
+            if (q.type === "yesNoSomewhat") {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+                ['Yes', 'Somewhat', 'No'].forEach(optionText => {
+                    const val = optionText.toLowerCase();
+                    const radioLabel = document.createElement('label');
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = q.id;
+                    radio.value = val;
+                    radio.id = `${q.id}-${val}`;
+                    if (answers[q.id] === val) radio.checked = true;
+                    
+                    radioLabel.appendChild(radio);
+                    radioLabel.appendChild(document.createTextNode(optionText));
+                    optionsDiv.appendChild(radioLabel);
+                });
+                questionDiv.appendChild(optionsDiv);
+            } else if (q.type === "number") {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = q.id;
+                input.name = q.id;
+                input.placeholder = "Enter number (e.g., 50000)";
+                if (answers[q.id]) input.value = answers[q.id];
+                questionDiv.appendChild(input);
+            }
+            form.appendChild(questionDiv); 
+            
+            prevBtn.style.display = index > 0 ? 'inline-block' : 'none';
+            nextBtn.textContent = (index === questions.length - 1) ? 'Show Results' : 'Next';
+            
+            updateSidebarProgressBar();
+        }
+        
+        function updateSidebarProgressBar() {
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            sidebarProgressBar.style.width = `${progress}%`;
+        }
+
+        function saveAnswer(index) {
+            const q = questions[index];
+            if (q.type === "yesNoSomewhat") {
+                const selectedOption = form.querySelector(`input[name="${q.id}"]:checked`);
+                if (selectedOption) answers[q.id] = selectedOption.value;
+                else answers[q.id] = null; 
+            } else if (q.type === "number") {
+                const inputField = form.querySelector(`#${q.id}`);
+                if (inputField) answers[q.id] = inputField.value;
+            }
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            saveAnswer(currentQuestionIndex);
+            const q = questions[currentQuestionIndex];
+            if (q.type === "yesNoSomewhat" && !answers[q.id] && !q.optional) {
+                alert("Please select an answer.");
+                return;
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                renderQuestion(currentQuestionIndex);
+            } else {
+                sidebarProgressBar.style.width = `100%`;
+                calculateResults();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                saveAnswer(currentQuestionIndex); 
+                currentQuestionIndex--;
+                renderQuestion(currentQuestionIndex);
+            }
+        });
+
+        document.getElementById('start-assessment-btn').addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            Object.keys(answers).forEach(key => delete answers[key]);
+            showScreen(questionnaireScreen);
+            renderQuestion(currentQuestionIndex); 
+        });
+        
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            Object.keys(answers).forEach(key => delete answers[key]);
+            sidebarProgressBar.style.width = `0%`; 
+            showScreen(introScreen);
+        });
+
+        function calculateResults() {
+            let totalScore = 0;
+            let maxScore = 0;
+            const categoryScores = {};
+            const adviceList = [];
+
+            categories.forEach(cat => {
+                categoryScores[cat] = { score: 0, maxScore: 0, percentage: 0 };
+            });
+
+            questions.forEach(q => {
+                if (q.type === "number" || q.optional) return; 
+
+                let questionScore = 0;
+                const answer = answers[q.id];
+                if (answer === "yes") questionScore = 2;
+                else if (answer === "somewhat") questionScore = 1;
+                
+                const effectiveWeight = q.weight || 1;
+                categoryScores[q.category].score += questionScore * effectiveWeight;
+                categoryScores[q.category].maxScore += 2 * effectiveWeight; 
+
+                if ((answer === "no" || answer === "somewhat") && q.advice && q.advice[answer]) {
+                    adviceList.push(q.advice[answer]);
+                }
+            });
+            
+            let overallAchievedScore = 0;
+            let overallMaxScore = 0;
+
+            categories.forEach(cat => {
+                const catData = categoryScores[cat];
+                if (catData.maxScore > 0) {
+                    catData.percentage = Math.round((catData.score / catData.maxScore) * 100);
+                } else {
+                    catData.percentage = 100; 
+                }
+                overallAchievedScore += catData.score;
+                overallMaxScore += catData.maxScore;
+            });
+            
+            const overallPercentage = overallMaxScore > 0 ? Math.round((overallAchievedScore / overallMaxScore) * 100) : 100;
+
+            displayResults(overallPercentage, categoryScores, adviceList);
+        }
+
+        function displayResults(overallPercentage, categoryScoresData, adviceItems) {
+            showScreen(resultsScreen);
+            document.getElementById('overall-score').textContent = `You're ${overallPercentage}% Investor-Ready`;
+            sidebarOverallScoreTextEl.textContent = `Overall Readiness: ${overallPercentage}%`;
+
+            const categoryScoresDiv = document.getElementById('category-scores');
+            categoryScoresDiv.innerHTML = '';
+            const radarData = []; 
+
+            categories.forEach(cat => {
+                const data = categoryScoresData[cat];
+                const div = document.createElement('div');
+                div.classList.add('category-score');
+                div.innerHTML = `<span>${cat}:</span> <span>${data.percentage}%</span>`;
+                categoryScoresDiv.appendChild(div);
+                radarData.push({axis: cat, value: data.percentage / 100}); 
+            });
+
+            drawRadarChart(radarData);
+
+            const actionListUl = document.getElementById('action-list');
+            actionListUl.innerHTML = '';
+            if (adviceItems.length === 0 && overallPercentage > 80) { 
+                actionListUl.innerHTML = "<li>Congratulations! You're in a strong position. A quick chat with Odysi could help fine-tune your fundraising strategy and narrative.</li>";
+            } else if (adviceItems.length === 0) {
+                 actionListUl.innerHTML = "<li>No specific critical gaps identified from your answers, but there's always room for optimization. Consider discussing your overall strategy with Odysi.</li>";
+            }
+            else {
+                adviceItems.forEach(advice => {
+                    const li = document.createElement('li');
+                    li.textContent = advice;
+                    actionListUl.appendChild(li);
+                });
+            }
+        }
+        
+        function drawRadarChart(data) {
+            const svg = document.getElementById('radar-chart');
+            svg.innerHTML = ''; 
+
+            const width = +svg.getAttribute('width');
+            const height = +svg.getAttribute('height');
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(centerX, centerY) * 0.85;  /* Slightly increased radius */
+            const levels = 5; 
+            const angleSlice = Math.PI * 2 / data.length;
+
+            for (let i = 1; i <= levels; i++) {
+                const levelFactor = radius * (i / levels);
+                let levelPath = "M ";
+                for (let j = 0; j < data.length; j++) {
+                    const x = centerX + levelFactor * Math.cos(angleSlice * j - Math.PI / 2);
+                    const y = centerY + levelFactor * Math.sin(angleSlice * j - Math.PI / 2);
+                    levelPath += `${x.toFixed(2)},${y.toFixed(2)} `;
+                }
+                levelPath += "Z";
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", levelPath);
+                path.setAttribute("class", "radar-level");
+                path.style.fill = i % 2 === 0 ? "rgba(0,0,0,0.02)" : "none"; /* Subtle alternating fill for levels */
+                svg.appendChild(path);
+            }
+
+            data.forEach((d, i) => {
+                const x1 = centerX;
+                const y1 = centerY;
+                const x2 = centerX + radius * Math.cos(angleSlice * i - Math.PI / 2);
+                const y2 = centerY + radius * Math.sin(angleSlice * i - Math.PI / 2);
+                
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", x1.toFixed(2));
+                line.setAttribute("y1", y1.toFixed(2));
+                line.setAttribute("x2", x2.toFixed(2));
+                line.setAttribute("y2", y2.toFixed(2));
+                line.setAttribute("class", "radar-axis");
+                svg.appendChild(line);
+
+                const labelX = centerX + (radius * 1.12) * Math.cos(angleSlice * i - Math.PI / 2); /* Adjusted label distance */
+                const labelY = centerY + (radius * 1.12) * Math.sin(angleSlice * i - Math.PI / 2);
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", labelX.toFixed(2));
+                text.setAttribute("y", labelY.toFixed(2));
+                
+                let labelText = d.axis;
+                const words = labelText.split(' ');
+                if (words.length > 2) { // For "Go-to-Market Clarity" -> "GTM Clarity"
+                    labelText = words.map((w,idx) => idx < 2 ? w.substring(0,1).toUpperCase() : w ).join(words.length > 2 ? (words[0].length > 2 ? "" : " ") : " ");
+                    if(labelText.length > 12) labelText = words[0].substring(0,3) + " " + words[1].substring(0,3) + "..";
+                } else if (labelText.length > 12) {
+                     labelText = labelText.substring(0,10) + "..";
+                }
+
+
+                text.textContent = labelText;
+                text.setAttribute("class", "radar-label");
+                text.setAttribute("dominant-baseline", "middle");
+                svg.appendChild(text);
+            });
+
+            let dataPath = "M ";
+            data.forEach((d, i) => {
+                const val = Math.max(0, d.value); 
+                const x = centerX + radius * val * Math.cos(angleSlice * i - Math.PI / 2);
+                const y = centerY + radius * val * Math.sin(angleSlice * i - Math.PI / 2);
+                dataPath += `${x.toFixed(2)},${y.toFixed(2)} `;
+            });
+            dataPath += "Z";
+            const polygon = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            polygon.setAttribute("d", dataPath);
+            polygon.setAttribute("class", "radar-polygon");
+            svg.appendChild(polygon);
+        }
+
+        document.getElementById('book-session-btn').addEventListener('click', () => {
+            window.open('https://calendly.com/odysi-studio/30min', '_blank'); 
+        });
+        
+        document.getElementById('download-report-btn').addEventListener('click', () => {
+            const overallScoreText = document.getElementById('overall-score').textContent;
+            const categoryScoresHTML = document.getElementById('category-scores').innerHTML;
+            const adviceHTML = document.getElementById('action-list').innerHTML;
+
+            let reportText = "Investor Readiness Scorecard Summary (Odysi Studio)\n";
+            reportText += "====================================================\n\n";
+            reportText += overallScoreText + "\n\n";
+            reportText += "Category Breakdown:\n";
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = categoryScoresHTML;
+            tempDiv.querySelectorAll('.category-score').forEach(cs => {
+                reportText += cs.textContent.replace(/:\s+/g, ": ").replace(/\s+/g, " ").trim() + "\n";
+            });
+            
+            reportText += "\nKey Gaps & Actionable Next Steps:\n";
+            tempDiv.innerHTML = adviceHTML;
+            tempDiv.querySelectorAll('li').forEach(li => {
+                reportText += li.textContent.replace('✓','-') + "\n"; // Replace checkmark with dash for text report
+            });
+
+            reportText += "\n\nTake the next step: Discuss these results with Odysi Studio by booking a free session at https://calendly.com/odysi-studio/30min\n";
+
+            const reportTextarea = document.getElementById('report-textarea');
+            reportTextarea.value = reportText;
+            reportTextarea.select();
+            try {
+                document.execCommand('copy');
+                alert('Summary copied to clipboard! You can now paste it into an email or document.');
+            } catch (err) {
+                alert('Could not copy text. Please manually copy the summary.');
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+        });
+
+        showScreen(introScreen);
+    </script>
+</body>
+</html>
